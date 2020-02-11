@@ -55,6 +55,8 @@
         </div>
     </div>
 
+    <!-- 引入基地址js文件 -->
+    <script src="./libs/http.js"></script>
     <script>
         //一进入页面发送ajax请求获取到用户信息;
         $.ajax({
@@ -63,7 +65,7 @@
             // headers: {
             //     'Authorization': localStorage.getItem('token') //这个'token'在登录页面时候已经取得并通过localStorage.setItem的方法存到本地
             // },
-            url: 'http://localhost:8080/api/v1/admin/user/info',
+            url: window.BigNew.user_info,
             success: function (backData) {
                 console.log(backData);
                 $('.user_info>img').attr('src', backData.data.userPic); //修改用户头像;
