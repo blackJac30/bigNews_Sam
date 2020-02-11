@@ -54,5 +54,36 @@
 
         </div>
     </div>
+
+    <script>
+        //一进入页面发送ajax请求获取到用户信息;
+        $.ajax({
+            type: 'get',
+            //这里就是把token令牌带过去的方法:
+            // headers: {
+            //     'Authorization': localStorage.getItem('token') //这个'token'在登录页面时候已经取得并通过localStorage.setItem的方法存到本地
+            // },
+            url: 'http://localhost:8080/api/v1/admin/user/info',
+            success: function (backData) {
+                console.log(backData);
+                $('.user_info>img').attr('src', backData.data.userPic); //修改用户头像;
+                $('.user_center_link>img').attr('src', backData.data.userPic); //修改用户头像;
+                $('.user_info>span').html('欢迎&nbsp;&nbsp;' + backData.data.nickname); //修改用户名;
+            }
+        })
+
+        //使用元素js方法;
+        //一:进入页面发送ajax请求获取到用户信息;
+        //二:原生js发送ajax请求,如何带token过去;
+        // var xhr = new XMLHttpRequest();
+        // xhr.open('get', 'http://localhost:8080/api/v1/admin/user/info');
+        // //把存放在localStorage中的token令牌取出来,通过请求头的方式发送给后端接口;
+        // xhr.setRequestHeader('Authorization', localStorage.getItem('token'));
+        // xhr.send();
+        // xhr.onload = function () {
+        //     console.log(xhr.response);
+        // }
+    </script>
 </body>
+
 </html>
