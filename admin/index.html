@@ -83,6 +83,15 @@
         // xhr.onload = function () {
         //     console.log(xhr.response);
         // }
+
+        //退出:实际上就是删除token;
+        $('.logout').on('click', function (e) {
+            e.preventDefault();
+            //删除token;
+            localStorage.removeItem('token');
+            //回到登录页;
+            window.location.href = './login.html';
+        })
     </script>
 </body>
 
