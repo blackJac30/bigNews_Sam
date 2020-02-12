@@ -51,6 +51,38 @@
             </table>
         </div>
     </div>
+
+    <script src="./libs/http.js"></script>
+    <script id="acticle_cate_temp" type="text/html">
+        {{each data v}}
+        <tr>
+            <td>{{v.name}}</td>
+            <td>{{v.slug}}</td>
+            <td class="text-center">
+                <a href="javascript:void(0)" data-id={{v.id}} data-toggle="modal" class=" btn btn-info btn-xs">编辑</a>
+                <a href="javascript:void(0)" data-id={{v.id}} class="btn btn-danger btn-xs">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+    <script>
+        //入口函数;
+        $(function () {
+            //一.已进入页面发送ajax请求,获取所以文章类别;
+            $.ajax({
+                type: 'get',
+                url: window.BigNew.category_list,
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        //使用模板引擎渲染到页面;
+                        var res = template('acticle_cate_temp', backData);
+                        $('tbody').html(res)
+                    }
+                }
+            })
+        })
+    </script>
 </body>
 
 </html>
