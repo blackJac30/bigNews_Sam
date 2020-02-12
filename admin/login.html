@@ -73,7 +73,8 @@
 
         //非空判断;
         if (userName == "" || password == "") {
-
+          $('#myModal').modal();
+          $('.modal-body').text('账号密码不能为空');
         }
         //发送ajax请求;
         $.ajax({
