@@ -72,6 +72,72 @@
             </div>
         </div>
     </div>
+
+    <!-- 准备一个文章类别模板 -->
+    <script id="category_temp" type="text/html">
+        <option value="">所有分类</option>
+        {{each data v}}
+        <option value="{{v.id}}">{{v.name}}</option>
+        {{/each}}
+    </script>
+
+    <!-- 准备一个文章列表模板 -->
+    <script id="articleList_temp" type="text/html">
+        {{each data.data v}}
+        <tr>
+            <td>{{v.title}}</td>
+            <td>{{v.author}}</td>
+            <td>{{v.category}}</td>
+            <td class="text-center">{{v.date}}</td>
+            <td class="text-center">{{v.state}}</td>
+            <td class="text-center">
+                <a href="article_edit.html" class="btn btn-default btn-xs">编辑</a>
+                <a href="javascript:void(0);" data-id="{{v.categoryId}}" class="btn btn-danger btn-xs delete">删除</a>
+            </td>
+        </tr>
+        {{/each}}
+    </script>
+
+    <script src="./libs/http.js"></script>
+    <script>
+        //入口函数;
+        $(function () {
+            //一: 发送ajax请求,获取所有的文章类别,通过模板引擎渲染到页面上;
+            $.ajax({
+                type: 'get',
+                url: window.BigNew.category_list,
+                success: function (backData) {
+                    console.log(backData);
+                    if (backData.code == 200) {
+                        //使用模板引擎渲染到下拉菜单中;
+                        var res = template('category_temp', backData);
+                        $('#selCategory').html(res);
+                    }
+                }
+            });
+
+            //二: 一进到页面就发送ajax请求获取默认的文章列表,显示在页面上;
+            $.ajax({
+                type: 'get',
+                url: window.BigNew.article_query,
+                data: {
+                    type: $('#selCategory').val(),
+                    state: $('#selStatus').val(),
+                    page: 1,
+                    perpage: 6
+                },
+                success: function (backData) {
+                    // console.log(backData);
+                    if (backData.code == 200) {
+                        // 通过模板引擎渲染到页面上;
+                        // 调用模板引擎的核心方法:
+                        var res = template('articleList_temp', backData);
+                        $('tbody').html(res);
+                    }
+                }
+            })
+        })
+    </script>
 </body>
 
 </html>
