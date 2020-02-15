@@ -119,8 +119,12 @@
 
             // 第三天: 设置 新增/编辑 事件;
             //二.引入bootStrap事件;
-            $('#myModal').on('show.bs.modal', function (e) {
-                console.log(e.relatedTarget);
+            //Bootstrap显示事件(官语:Bootstrap 的模态框类提供了一些事件用于监听并执行你自己的代码);
+            $('#myModal').on('show.bs.modal', function (e) { //1.show 方法调用之后立即触发 {内} 的事件;
+                console.log(e.relatedTarget); //2. e.relatedTarget则是获取到了触发这个模态框的按钮(dom元素);
+
+                // 通过e.relatedTarget获取到的dom元素进行判断是否是 "新增分类" 这个按钮触发的;
+                // 从而更改不同内容的模态框;
                 if (e.relatedTarget == $('#xinzengfenlei')[0]) {
                     $('#myModalLabel').text('新增分类');
                     $('#btnAdd').text('新增').addClass('btn-primary').removeClass('btn-success');
@@ -198,7 +202,7 @@
                 // $('#recipient-name').val("");
                 // $('#message-text').val("");
 
-                // 第二种方法:form表单的reset()方法;
+                // 第二种方法:form表单的reset()方法(reset() 方法可把表单中的元素重置为它们的默认值);
                 $('#myModal form')[0].reset(); //dom对象调用reset()方法;
             });
 

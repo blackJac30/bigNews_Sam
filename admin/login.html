@@ -89,7 +89,7 @@
             if (backData.code == 200) {
               $('#myModal').modal();
               $('.modal-body').text(backData.msg);
-              $('#myModal').on('hidden.bs.modal', function (e) {
+              $('#myModal').on('hidden.bs.modal', function (e) { //1.hidden方法调用之后立即触发 {内} 的事件;
                 //把服务器返回的Token令牌保存起来;
                 localStorage.setItem('token', backData.token)
                 //登录成功跳转首页;
