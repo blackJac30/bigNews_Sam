@@ -14,6 +14,10 @@
     <script src="./libs/jquery-1.12.4.min.js"></script>
     <!-- 模板引擎 -->
     <script src="./libs/template-web.js"></script>
+    <!-- 引入选择时间插件文件 -->
+    <link rel="stylesheet" href="./libs/date_function/test/jeDate-test.css">
+    <link rel="stylesheet" href="./libs/date_function/skin/jedate.css">
+    <script src="./libs/date_function/src/jedate.js"></script>
 </head>
 
 <body>
@@ -23,22 +27,25 @@
         </div>
         <div class="container-fluid common_con">
             <form class="form-horizontal article_form" id="form">
+                <!-- 隐藏域保存id -->
+                <!-- <input type="hidden" name="id" id="hiddenId"> -->
+
                 <div class="form-group">
                     <label for="inputTitle" class="col-sm-2 control-label">文章标题：</label>
-                    <div class="col-sm-10">
+                    <div class="col-sm-6">
                         <input type="text" name="title" class="form-control title" id="inputTitle" value="文章标题文字">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputCover" class="col-sm-2 control-label">文章封面：</label>
                     <div class="col-sm-10">
-                        <img src="images/pic06.jpg" class="article_cover">
+                        <img src="images/d.gif" class="article_cover">
                         <input name="cover" type="file" id="inputCover">
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputCategory" class="col-sm-2 control-label">文章类别：</label>
-                    <div class="col-sm-4">
+                    <div class="col-sm-1">
                         <select class="form-control category" name="categoryId">
                             <option>类别一</option>
                             <option>类别二</option>
@@ -50,12 +57,25 @@
                 </div>
                 <div class="form-group">
                     <label class="col-sm-2 control-label">发布时间：</label>
-                    <div class="col-sm-4">
+
+                    <!-- 选择时间插件 -->
+                    <div class="jeitem col-sm-1">
+                        <!-- <label class="jelabel">点击图标</label> -->
+                        <div class="jeinpbox">
+                            <input type="text" class="jeinput" id="testico" placeholder="YYYY-MM-DD" name="date">
+                            <div class="icons jebtns"
+                                onclick="jeDate('#testico',{zIndex:20999999,trigger:false,format: 'YYYY-MM-DD'})">
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="inputEmail3" class="col-sm-2 control-label">文章内容：</label>
-                    <div class="col-sm-10">
+
+                    <!-- 编辑器插件 -->
+                    <div id="editor" class="col-sm-6">
+                        <!-- <p>欢迎使用 <b>wangEditor</b> 富文本编辑器</p> -->
+                        <p id="data_content">请输入...</p>
                     </div>
                 </div>
                 <div class="form-group">
@@ -67,6 +87,131 @@
             </form>
         </div>
     </div>
+
+    <script src="./libs/http.js"></script>
+    <!-- 引入编辑器插件文件 -->
+    <script type="text/javascript" src="./libs/wangEditor/release/wangEditor.min.js"></script>
+
+    <!-- 准备一个文章类别模板 -->
+    <script id="category_temp" type="text/html">
+        {{each data v}}
+        <option value="{{v.id}}">{{v.name}}</option>
+        {{/each}}
+    </script>
+
+    <script>
+        // 入口函数;
+        $(function () {
+            // 准备编辑页面该有的元素(日期插件,富文本编辑器,文章类别下拉菜单,图片预览);
+            // 日期插件;
+            jeDate("#testico", {
+                format: "YYYY-MM-DD",
+                isTime: false,
+                minDate: "2014-09-19 00:00:00",
+                zIndex: 20999999 // 日期插件弹出层级;
+            })
+
+            // 调用编辑器方法显示编辑器到页面;
+            var E = window.wangEditor
+            var editor = new E('#editor')
+            // 或者 var editor = new E( document.getElementById('editor') )
+            editor.create()
+
+            // 发送ajax请求,获取所有的文章类别,通过模板引擎渲染到 下拉菜单 里;
+            $.ajax({
+                type: 'get',
+                url: window.BigNew.category_list,
+                success: function (backData) {
+                    // console.log(backData);
+                    if (backData.code == 200) {
+                        //使用模板引擎渲染到下拉菜单中;
+                        var res = template('category_temp', backData);
+                        $('.category').html(res);
+                    }
+                }
+            });
+
+            // 图片预览;
+            $('#inputCover').on('change', function () {
+                var file = this.files[0];
+                var url = URL.createObjectURL(file);
+                $('.article_cover').attr('src', url);
+            })
+
+            // 编辑第一步: 根据id发送ajax请求获取文章内容并渲染到页面上;
+            // 把页面数据已对象形式保存;
+            var allData = {
+                // 获取当前页面id;
+                id: window.location.search.split('=')[1], // id;
+                title: $('#inputTitle'), // 文章标题;
+                // cover: $('.article_cover'), // 文章封面;
+                categoryId: $('.category'), // 文章分类;
+                date: $('#testico'), // 日期时间;
+                // content: $('#data_content') // 文章内容;
+            }
+            // console.log(allData);
+            setTimeout(function () {
+                $.ajax({
+                    type: 'get',
+                    url: window.BigNew.article_search,
+                    data: {
+                        id: allData.id
+                    },
+                    success: function (backData) {
+                        // console.log(backData);
+
+                        // 把获取到的数据加载到页面上;
+                        for (var key in allData) {
+                            // console.log(key);
+                            $(allData[key]).val(backData.data[key]);
+                        }
+                        $('.article_cover').attr('src', backData.data.cover); // 文章封面;
+                        editor.txt.html(backData.data.content) // 文章内容;
+
+                        // $('.title').val(backData.data.title); // 文章标题;
+                        // $('.category').val(backData.data.categoryId); // 文章分类;
+                        // $('#testico').val(backData.data.date); // 日期时间;
+                    }
+                });
+            }, 100);
+
+            // 封装ajax发送请求;
+            function alterData(state) {
+                var form1 = document.querySelector('form');
+                var fd1 = new FormData(form1);
+                // 往FormData对象中追加文章id,修改后的内容,state值(已发布/草稿);
+                fd1.append('id', allData.id); // 追加id
+                fd1.append('content', editor.txt.html()); // 追加内容;
+                fd1.append('state', state); // 追加内容;
+                $.ajax({
+                    type: 'post',
+                    url: window.BigNew.article_edit,
+                    data: fd1,
+                    contentType: false,
+                    processData: false,
+                    success: function (backData) {
+                        console.log(backData);
+                        if (backData.code == 200) {
+                            alert('修改成功' + state);
+                            window.history.back(); // 历史回退;
+                            console.log(window.location.href);
+                        }
+                    }
+                })
+            }
+            // 编辑第二步: (已发布)
+            $('.btn-edit').on('click', function (e) {
+                e.preventDefault();
+                alterData('已发布');
+            });
+
+            // 修改为草稿;
+            $('.btn-draft').on('click', function (e) {
+                e.preventDefault();
+                alterData('草稿');
+            })
+        })
+    </script>
 </body>
 
 </html>
